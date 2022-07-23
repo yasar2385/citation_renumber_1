@@ -293,7 +293,7 @@ var Get_Set_Part_Label = function (old_label, Option) {
         }
       }
     } else {
-      console.log('Obj.single');
+      console.log('Obj.single');      
       console.log(lab);
       Obj.single.label_1 = GET_SET_PART(lab);
       //console.log(Option.newValue);
