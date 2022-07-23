@@ -69,7 +69,7 @@ function rangeExtraction(list, config) {
       double_sep: ',',
       range_sep: '–',
     };
-    config = CONFIG;
+    config = CONFIG.dircite;
     for (i = 0; i < len; i = j + 1) {
       // beginning of range or single
       out.push(list[i]);
@@ -84,6 +84,7 @@ function rangeExtraction(list, config) {
         out.push(config.double_sep, list[j], config.double_sep);
       } else {
         // range
+        console.log("-------range------------");
         out.push(config.range_sep, list[j], config.double_sep);
       }
     }
@@ -203,16 +204,16 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     console.log(oldValue, newValue);
     Option = Option ? Option : { delVal: !1 };
     let new_rid = Option.node.getAttribute('rid');
-    console.log('new_rid---');
-    console.log(new_rid);
-    console.log('new_num');
+    // console.log('new_rid---');
+    // console.log(new_rid);
+    // console.log('new_num');
     let new_num=new_rid.split(' ').map((string) => parseInt(string.replace(/\D/g, '')));
-    console.log(new_num);
+    // console.log(new_num);
     console.log('rangeExtraction');
     let new_full_digit = rangeExtraction(new_num);
     console.log(new_full_digit);
     let split = {
-      new: [newValue.split(' ')[0], new_full_digit],
+      new: [oldValue.split(' ')[0], new_full_digit],
       old: oldValue.split(' '),
     };
     console.log('AFTER_SPLIT');
