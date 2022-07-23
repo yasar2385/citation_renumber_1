@@ -1,3 +1,17 @@
-h1, h2 {
+h1,
+h2 {
   font-family: Lato;
+}
+
+insert {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+
+insert[data-del-val]::after {
+  content: attr(data-del-val);
+  display: inline;
+  color: red;
+  position: relative;
+  text-decoration: line-through;
 }
