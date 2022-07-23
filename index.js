@@ -93,70 +93,51 @@ function rangeExtraction(list, config) {
     console.warn(err.messgae);
   }
 }
-var GET_SET_PART = function (string, Option) {
-  try {
-    return string.match(/[A-z]/) ? string.match(/[A-z]/).join('') : '';
-  } catch (err) {
-    console.warn(err.message);
-    ErrorLogTrace('GET_PART', err.message);
-  }
-};
-var Get_Set_Part_Label = function (old_label, Option) {
-  try {
-    Option = Option ? Option : { set: !1 };
-    let IsJoin_old_Cite = old_label[1] ? !1 : !0;
-    let lab = '';
-    if (typeof old_label !== 'string') {
-      lab = old_label[old_label[1] ? 1 : 0];
+var IS_JOURNAL = !0;
+var check = function (ArrLab) {
+  console.log('Start Array');
+  Array.from(ArrLab).forEach((item, ind, arr) => {
+    if (item.NewLabel.length != 0) {
+      console.log(item.Original_Id);
+      document
+        .querySelectorAll(`a[rid*=${item.Original_Id}]:not([data-cite])`)
+        .forEach((elm, i, ar) => {
+          // ? Handle new and existing citation here
+          if (elm.textContent.length < 2 && !elm.textContent.match(/\d+/g))
+            return;
+          if (IS_JOURNAL) {
+            let rid = elm.getAttribute('rid');
+            if (!elm.hasAttribute('orid')) elm.setAttribute('orid', rid);
+            if (rid == item.Original_Id) {
+              console.log('single');
+              elm.setAttribute('rid', item.NewId);
+            } else {
+              console.log('multiple');
+              // ? multiple rid
+              //rid.replace(item.Original_Id, item.NewId);
+              var new_rid_arr = [];
+              rid.split(' ').forEach((RID) => {
+                Object.keys(ArrLab).filter(function (key) {
+                  if (ArrLab[key]['Original_Id'] === RID) {
+                    let IsSame = ArrLab[key]['NewId'] == '';
+                    new_rid_arr.push(
+                      ArrLab[key][IsSame ? 'Original_Id' : 'NewId']
+                    );
+                  }
+                });
+              });
+              let new_rid = new_rid_arr.join(' ');
+              elm.setAttribute('rid', new_rid);
+              elm.setAttribute('href', '#' + new_rid);
+            }
+          }
+          elm.setAttribute('data-cite', 'edit');
+          console.log('Updat Start');
+          UpdateTrack(elm, item.Original_lab, item.NewLabel);
+          console.log(item);
+        });
     }
-    let Obj = { single: {}, range: {} };
-    console.log('lab.indexOf')
-    if (lab.indexOf('–') > 0) {
-      Obj.range_label_1 = GET_SET_PART();
-      Obj.range_label_2 = GET_SET_PART();
-      if (Option.set) {
-        if (Option.newValue.indexOf('–') > 0) {
-          // ? Figures 1-3
-          Obj.newValue = Option.newValue
-            .split('–')
-            .map((s, idx) => s + Obj[idx == 0 ? range_label_1 : range_label_2])
-            .join('–');
-        } else if (Option.newValue.indexOf(',') > 0) {
-          // ? Figures 1,3,4
-          Obj.newValue =
-            (IsJoin_old_Cite ? '' : old_label[0]) +
-            Option.newValue
-              .split(',')
-              .map(
-                (s, idx, arr) =>
-                  s +
-                  Obj[
-                    idx == 0
-                      ? range_label_1
-                      : idx === arr.length - 1
-                      ? range_label_2
-                      : ''
-                  ]
-              )
-              .join(',');
-        }
-      }
-    } else {
-      Obj.single.label_1 = GET_SET_PART(lab);
-      console.log('Obj.single');
-      console.log(old_label);
-      if (Option.set) {
-        Obj.newValue =
-          (IsJoin_old_Cite ? '' : old_label[0]) + Obj.single.label_1;
-      }
-    }
-    console.log('Objsingle');
-    console.log(Obj);
-    return Obj;
-  } catch (err) {
-    console.warn(err.message);
-    //ErrorLogTrace('Get_Set_Part_Label', err.message);
-  }
+  });
 };
 var UpdateTrack = function (node, oldValue, newValue, Options) {
   var InsertDOM = document.createElement('insert');
@@ -190,12 +171,13 @@ var UpdateTrack = function (node, oldValue, newValue, Options) {
       Insert.setAttribute('data-last-change-time', new Date().getTime());
     } else {
       // ? Un edited Citation
+      console.log(`Text_Compare_Update`);
+      console.log(node.textContent);
       let GetObj = Text_Compare_Update(node.textContent, newValue, {
         delVal: !0,
         addPartLab: !0,
         node: node,
       });
-      console.log(`Text_Compare_Update`);
       console.log(GetObj);
       InsertDOM.setAttribute('data-del-val', GetObj.delVal);
       InsertDOM.textContent = GetObj.newVal;
@@ -214,13 +196,22 @@ var UpdateTrack = function (node, oldValue, newValue, Options) {
 };
 var Text_Compare_Update = function (oldValue, newValue, Option) {
   try {
+    console.log('oldValue,newValue');
+    console.log(oldValue, newValue);
     Option = Option ? Option : { delVal: !1 };
-    let split = { new: newValue.split(' '), old: oldValue.split(' ') };
-    let IsJoin_old_Cite = split.old[1] ? !1 : !0;
     let new_rid = Option.node.getAttribute('rid');
     let new_full_digit = rangeExtraction(
       new_rid.split(' ').map((string) => parseInt(string.replace(/\D/g, '')))
     );
+    console.log('rangeExtraction');
+    console.log(new_full_digit);
+    let split = {
+      new: [newValue.split(' ')[0], new_full_digit],
+      old: oldValue.split(' '),
+    };
+    console.log('AFTER_SPLIT');
+    console.log(split);
+    let IsJoin_old_Cite = split.old[1] ? !1 : !0;
     if (
       split.old[0] == split.new[0] ||
       split.old[0].match(split.new[0]) ||
@@ -228,9 +219,11 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     ) {
       let ReTurn_Obj = {};
       if (Option.addPartLab) {
+        console.log('split-new');
+        console.log(split['old']);
         let PART_LAB = Get_Set_Part_Label(split['old'], {
           set: !0,
-          newValue: new_full_digit,
+          newValue: split.new,
         });
         ReTurn_Obj.newVal = PART_LAB.newValue;
       }
@@ -245,60 +238,124 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     console.warn(err.message);
   }
 };
-var IS_JOURNAL = !0;
-var check = function () {
-  console.log('Start');
-  var ArrLab = [
-    {
-      Original_lab: 'Figure 1',
-      Original_Id: 'F1',
-      Seq_No: '1',
-      NewLabel: 'Figure 2',
-      NewId: 'F2',
-    },
-  ];
-  console.log('Start Array');
-  Array.from(ArrLab).forEach((item, ind, arr) => {
-    if (item.NewLabel.length != 0) {
-      console.log(item.Original_Id);
-      document
-        .querySelectorAll(`a[rid*=${item.Original_Id}]:not([data-cite])`)
-        .forEach((elm, i, ar) => {
-          // ? Handle new and existing citation here
-          if (elm.textContent.length < 2 && !elm.textContent.match(/\d+/g))
-            return;
-          if (IS_JOURNAL) {
-            let rid = elm.getAttribute('rid');
-            if (!elm.hasAttribute('orid')) elm.setAttribute('orid', rid);
-            if (rid == item.Original_Id) {
-              console.log('singlle');
-              elm.setAttribute('rid', item.NewId);
-            } else {
-              console.log('multiple');
-              // ? multiple rid
-              //rid.replace(item.Original_Id, item.NewId);
-              var new_rid_arr = [];
-              rid.split(' ').forEach((RID) => {
-                Object.keys(ArrLab).filter(function (key) {
-                  if (ArrLab[key]['Original_Id'] === RID) {
-                    let IsSame = ArrLab[key]['NewId'] == '';
-                    new_rid_arr.push(
-                      ArrLab[key][IsSame ? 'Original_Id' : 'NewId']
-                    );
-                  }
-                });
-              });
-              let new_rid = new_rid_arr.join(' ');
-              elm.setAttribute('rid', new_rid);
-              elm.setAttribute('href', '#' + new_rid);
-            }
-          }
-          elm.setAttribute('data-cite', 'edit');
-          console.log('Updat Start');
-          UpdateTrack(elm, item.Original_lab, item.NewLabel);
-          console.log(item);
-        });
-    }
-  });
+var GET_SET_PART = function (string, Option) {
+  try {
+    console.log('GET_SET_PART');
+    console.log(string);
+    return string.split(string.replace(/\D/g, '')).join('');
+  } catch (err) {
+    console.warn(err.message);
+    ErrorLogTrace('GET_PART', err.message);
+  }
 };
-check();
+var Get_Set_Part_Label = function (old_label, Option) {
+  try {
+    console.log('Get_Set_Part_Label');
+    Option = Option ? Option : { set: !1 };
+    let IsJoin_old_Cite = old_label[1] ? !1 : !0;
+    let lab = '';
+    if (typeof old_label !== 'string') {
+      lab = old_label[old_label[1] ? 1 : 0];
+    }
+    let Obj = { single: {}, range: {} };
+    console.log('__lab__');
+    console.log(lab);
+    if (lab.indexOf('–') > 0 && lab.split('–')[1].replace(/\D/g, '')) {
+      console.log('lab.indexOf');
+      console.log(lab.split('–')[1].replace(/\D/g, ''));
+      Obj.range_label_1 = GET_SET_PART(lab);
+      Obj.range_label_2 = GET_SET_PART(lab);
+      if (Option.set) {
+        if (Option.newValue.indexOf('–') > 0) {
+          // ? Figures 1-3
+          Obj.newValue = Option.newValue
+            .split('–')
+            .map((s, idx) => s + Obj[idx == 0 ? range_label_1 : range_label_2])
+            .join('–');
+        } else if (Option.newValue.indexOf(',') > 0) {
+          // ? Figures 1,3,4
+          Obj.newValue =
+            (IsJoin_old_Cite ? '' : old_label[0]) +
+            Option.newValue
+              .split(',')
+              .map(
+                (s, idx, arr) =>
+                  s +
+                  Obj[
+                    idx == 0
+                      ? range_label_1
+                      : idx === arr.length - 1
+                      ? range_label_2
+                      : ''
+                  ]
+              )
+              .join(',');
+        }
+      }
+    } else {
+      console.log('Obj.single');
+      console.log(lab);
+      Obj.single.label_1 = GET_SET_PART(lab);
+      //console.log(Option.newValue);
+      if (Option.set) {
+        Obj.newValue =
+          (IsJoin_old_Cite ? '' : old_label[0]).concat(
+            ' ',
+            Option.newValue[1]
+          ) + Obj.single.label_1;
+      }
+    }
+    console.log('Objsingle');
+    console.log(Obj);
+    return Obj;
+  } catch (err) {
+    console.warn(err.message);
+    //ErrorLogTrace('Get_Set_Part_Label', err.message);
+  }
+};
+let Or_Order = [
+  // {
+  //   Original_lab: 'Figure 1',
+  //   Original_Id: 'F1',
+  //   Seq_No: '1',
+  //   NewLabel: 'Figure 2',
+  //   NewId: 'F2',
+  // },
+  {
+    Original_lab: 'Figure 2',
+    Original_Id: 'F2',
+    Seq_No: '2',
+    NewLabel: 'Figure 3',
+    NewId: 'F3',
+  },
+  // {
+  //   Original_lab: 'Figure 3',
+  //   Original_Id: 'F3',
+  //   Seq_No: '3',
+  //   NewLabel: 'Figure 4',
+  //   NewId: 'F4',
+  // },
+  // {
+  //   Original_lab: 'Figure 4',
+  //   Original_Id: 'F4',
+  //   Seq_No: '4',
+  //   NewLabel: 'Figure 5',
+  //   NewId: 'F5',
+  // },
+  // ,
+  // {
+  //   Original_lab: 'Figure 5',
+  //   Original_Id: 'F5',
+  //   Seq_No: '5',
+  //   NewLabel: 'Figure 6',
+  //   NewId: 'F6',
+  // },
+  // {
+  //   Original_lab: 'Table 1',
+  //   Original_Id: 'T1',
+  //   Seq_No: '1',
+  //   NewLabel: 'Table 2',
+  //   NewId: 'T2',
+  // },
+];
+check(Or_Order);
