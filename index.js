@@ -116,6 +116,7 @@ var check = function (ArrLab) {
               // ? multiple rid
               //rid.replace(item.Original_Id, item.NewId);
               var new_rid_arr = [];
+              console.log(rid);
               rid.split(' ').forEach((RID) => {
                 Object.keys(ArrLab).filter(function (key) {
                   if (ArrLab[key]['Original_Id'] === RID) {
@@ -127,6 +128,8 @@ var check = function (ArrLab) {
                 });
               });
               let new_rid = new_rid_arr.join(' ');
+              console.log('__new_rid__');
+              console.log(new_rid);
               elm.setAttribute('rid', new_rid);
               elm.setAttribute('href', '#' + new_rid);
             }
@@ -200,10 +203,13 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     console.log(oldValue, newValue);
     Option = Option ? Option : { delVal: !1 };
     let new_rid = Option.node.getAttribute('rid');
-    let new_full_digit = rangeExtraction(
-      new_rid.split(' ').map((string) => parseInt(string.replace(/\D/g, '')))
-    );
+    console.log('new_rid---');
+    console.log(new_rid);
+    console.log('new_num');
+    let new_num=new_rid.split(' ').map((string) => parseInt(string.replace(/\D/g, '')));
+    console.log(new_num);
     console.log('rangeExtraction');
+    let new_full_digit = rangeExtraction(new_num);
     console.log(new_full_digit);
     let split = {
       new: [newValue.split(' ')[0], new_full_digit],
@@ -293,7 +299,7 @@ var Get_Set_Part_Label = function (old_label, Option) {
         }
       }
     } else {
-      console.log('Obj.single');      
+      console.log('Obj.single');
       console.log(lab);
       Obj.single.label_1 = GET_SET_PART(lab);
       //console.log(Option.newValue);
@@ -314,13 +320,13 @@ var Get_Set_Part_Label = function (old_label, Option) {
   }
 };
 let Or_Order = [
-  // {
-  //   Original_lab: 'Figure 1',
-  //   Original_Id: 'F1',
-  //   Seq_No: '1',
-  //   NewLabel: 'Figure 2',
-  //   NewId: 'F2',
-  // },
+  {
+    Original_lab: 'Figure 1',
+    Original_Id: 'F1',
+    Seq_No: '1',
+    NewLabel: 'Figure 2',
+    NewId: 'F2',
+  },
   {
     Original_lab: 'Figure 2',
     Original_Id: 'F2',
@@ -328,34 +334,33 @@ let Or_Order = [
     NewLabel: 'Figure 3',
     NewId: 'F3',
   },
-  // {
-  //   Original_lab: 'Figure 3',
-  //   Original_Id: 'F3',
-  //   Seq_No: '3',
-  //   NewLabel: 'Figure 4',
-  //   NewId: 'F4',
-  // },
-  // {
-  //   Original_lab: 'Figure 4',
-  //   Original_Id: 'F4',
-  //   Seq_No: '4',
-  //   NewLabel: 'Figure 5',
-  //   NewId: 'F5',
-  // },
-  // ,
-  // {
-  //   Original_lab: 'Figure 5',
-  //   Original_Id: 'F5',
-  //   Seq_No: '5',
-  //   NewLabel: 'Figure 6',
-  //   NewId: 'F6',
-  // },
-  // {
-  //   Original_lab: 'Table 1',
-  //   Original_Id: 'T1',
-  //   Seq_No: '1',
-  //   NewLabel: 'Table 2',
-  //   NewId: 'T2',
-  // },
+  {
+    Original_lab: 'Figure 3',
+    Original_Id: 'F3',
+    Seq_No: '3',
+    NewLabel: 'Figure 4',
+    NewId: 'F4',
+  },
+  {
+    Original_lab: 'Figure 4',
+    Original_Id: 'F4',
+    Seq_No: '4',
+    NewLabel: 'Figure 5',
+    NewId: 'F5',
+  },
+  {
+    Original_lab: 'Figure 5',
+    Original_Id: 'F5',
+    Seq_No: '5',
+    NewLabel: 'Figure 6',
+    NewId: 'F6',
+  },
+  {
+    Original_lab: 'Table 1',
+    Original_Id: 'T1',
+    Seq_No: '1',
+    NewLabel: 'Table 2',
+    NewId: 'T2',
+  },
 ];
 check(Or_Order);
