@@ -40,35 +40,13 @@ const CONFIG = {
     Addafter: '.',
   },
 };
-// let oldValue = 'Figure 1.',
-//   newValue = ' Figure 2.';
 
-// [oldValue, newValue].forEach((data, idx, arr) => {
-//   console.log([idx == 0 ? oldValue : newValue][0]);
-//   [idx == 0 ? oldValue : newValue][0] = data.endsWith('.')
-//     ? data.slice(0, -1)
-//     : data;
-// });
-// console.log([oldValue, newValue]);
-// let oldValue_1 = 'Figure 1A', newValue_2 = 'Figure 2';
-// console.log(!'A'.match(/\d+/g));
-// let p = document.createElement('p');
-// p.textContent = Text_Compare_Update(oldValue_1, newValue_2, {
-//   delVal: !0,
-//   addPartLab: !0,
-// }).newVal;
-// appDiv.appendChild(p);
-
-// console.log(![''][0].match(/[A-z]/));
 function rangeExtraction(list, config) {
   try {
     var len = list.length;
     var out = [];
     var i, j;
-    var default_sep = {
-      double_sep: ',',
-      range_sep: '–',
-    };
+
     config = CONFIG.dircite;
     for (i = 0; i < len; i = j + 1) {
       // beginning of range or single
@@ -84,7 +62,7 @@ function rangeExtraction(list, config) {
         out.push(config.double_sep, list[j], config.double_sep);
       } else {
         // range
-        console.log("-------range------------");
+        console.log('-------range------------');
         out.push(config.range_sep, list[j], config.double_sep);
       }
     }
@@ -207,7 +185,9 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     // console.log('new_rid---');
     // console.log(new_rid);
     // console.log('new_num');
-    let new_num=new_rid.split(' ').map((string) => parseInt(string.replace(/\D/g, '')));
+    let new_num = new_rid
+      .split(' ')
+      .map((string) => parseInt(string.replace(/\D/g, '')));
     // console.log(new_num);
     console.log('rangeExtraction');
     let new_full_digit = rangeExtraction(new_num);
@@ -226,7 +206,7 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     ) {
       let ReTurn_Obj = {};
       if (Option.addPartLab) {
-        console.log('split-new');
+        console.log('split---new');
         console.log(split['old']);
         let PART_LAB = Get_Set_Part_Label(split['old'], {
           set: !0,
@@ -248,7 +228,7 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
 var GET_SET_PART = function (string, Option) {
   try {
     console.log('GET_SET_PART');
-    console.log(string);
+    //console.log(string);
     return string.split(string.replace(/\D/g, '')).join('');
   } catch (err) {
     console.warn(err.message);
@@ -258,6 +238,7 @@ var GET_SET_PART = function (string, Option) {
 var Get_Set_Part_Label = function (old_label, Option) {
   try {
     console.log('Get_Set_Part_Label');
+    console.log(Option.newValue);
     Option = Option ? Option : { set: !1 };
     let IsJoin_old_Cite = old_label[1] ? !1 : !0;
     let lab = '';
@@ -265,21 +246,29 @@ var Get_Set_Part_Label = function (old_label, Option) {
       lab = old_label[old_label[1] ? 1 : 0];
     }
     let Obj = { single: {}, range: {} };
-    console.log('__lab__');
-    console.log(lab);
+   //console.log('__lab__');
+   // console.log(lab);
     if (lab.indexOf('–') > 0 && lab.split('–')[1].replace(/\D/g, '')) {
-      console.log('lab.indexOf');
-      console.log(lab.split('–')[1].replace(/\D/g, ''));
-      Obj.range_label_1 = GET_SET_PART(lab);
-      Obj.range_label_2 = GET_SET_PART(lab);
+      //console.log('lab.indexOf');
+      //console.log(lab.split('–')[1].replace(/\D/g, ''));
+      let range_split = lab.split('–');
+      Obj.range_label_1 = GET_SET_PART(range_split[0]);
+      Obj.range_label_2 = GET_SET_PART(range_split[1]);
+      console.log('range_label_1 ==> ' + Obj.range_label_1);
+      console.log('range_label_2 ==> ' + Obj.range_label_2);
       if (Option.set) {
-        if (Option.newValue.indexOf('–') > 0) {
+        console.log(`===>`+Option.newValue.join(' '));
+        if (Option.newValue[1].indexOf('–') > 0) {                    
           // ? Figures 1-3
-          Obj.newValue = Option.newValue
+          console.log('newValue.indexOf');
+          let tempVal = Option.newValue[1]
             .split('–')
-            .map((s, idx) => s + Obj[idx == 0 ? range_label_1 : range_label_2])
+            .map((s, idx) => s + Obj[`range_label_${idx == 0 ?'1':'2'}`])
             .join('–');
+          console.log(tempVal);
+          Obj.newValue = (IsJoin_old_Cite ? '' : old_label[0]).concat(' ' ,tempVal);
         } else if (Option.newValue.indexOf(',') > 0) {
+          console.log('--indexOf(',')---');
           // ? Figures 1,3,4
           Obj.newValue =
             (IsJoin_old_Cite ? '' : old_label[0]) +
