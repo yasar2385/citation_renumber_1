@@ -395,5 +395,5 @@ let Or_Order1_1 = [
     NewId: 'F6',
   },
 ];
-//check(Or_Order);
-check(Or_Order1_1);
+check(Or_Order);
+//check(Or_Order1_1);
