@@ -184,9 +184,9 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     console.log(oldValue, newValue);
     Option = Option ? Option : { delVal: !1 };
     let new_rid = Option.node.getAttribute('rid');
-     console.log('new_rid---');
-     console.log(new_rid);
-     console.log('new_num');
+    console.log('new_rid---');
+    console.log(new_rid);
+    console.log('new_num');
     let new_num = new_rid
       .split(' ')
       .map((string) => parseInt(string.replace(/\D/g, '')));
@@ -248,7 +248,7 @@ var Get_Set_Part_Label = function (old_label, Option) {
     if (typeof old_label !== 'string') {
       lab = old_label[old_label[1] ? 1 : 0];
     }
-    let Obj = { single: {}, range: {},range_label_0:''};
+    let Obj = { single: {}, range: {}, range_label_0: '' };
     //console.log('__lab__');
     // console.log(lab);
     if (lab.indexOf('–') > 0 && lab.split('–')[1].replace(/\D/g, '')) {
@@ -256,7 +256,7 @@ var Get_Set_Part_Label = function (old_label, Option) {
       //console.log(lab.split('–')[1].replace(/\D/g, ''));
       let range_split = lab.split('–');
       Obj.range_label_1 = GET_SET_PART(range_split[0]);
-      Obj.range_label_2 = GET_SET_PART(range_split[1]);      
+      Obj.range_label_2 = GET_SET_PART(range_split[1]);
       console.log('range_label_1 ==> ' + Obj.range_label_1);
       console.log('range_label_2 ==> ' + Obj.range_label_2);
       if (Option.set) {
@@ -270,10 +270,6 @@ var Get_Set_Part_Label = function (old_label, Option) {
             .map((s, idx) => s + Obj[`range_label_${idx == 0 ? '1' : '2'}`])
             .join('–');
           console.log(tempVal);
-          // Obj.newValue = (IsJoin_old_Cite ? '' : old_label[0]).concat(
-          //   ' ',
-          //   tempVal
-          // );
         } else if (Option.newValue[1].indexOf(',') > 0) {
           console.log('--indexOf(",")---');
           // ? Figures 1,3,4
@@ -283,14 +279,11 @@ var Get_Set_Part_Label = function (old_label, Option) {
             .map(
               (s, idx, arr) =>
                 s +
-                Obj[`range_label_${idx == 0 ? '1' : (idx === arr.length - 1?'2':'0')}`]
-                // Obj[
-                //   idx == 0
-                //     ? range_label_1
-                //     : idx === arr.length - 1
-                //     ? range_label_2
-                //     : ''
-                // ]
+                Obj[
+                  `range_label_${
+                    idx == 0 ? '1' : idx === arr.length - 1 ? '2' : '0'
+                  }`
+                ]
             )
             .join(',');
           console.log(tempVal);
