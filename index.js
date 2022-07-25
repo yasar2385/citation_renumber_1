@@ -16,6 +16,7 @@ const CONFIG = {
     double_prefix: 'Figure ',
     double_sep: ' and ',
     multi_prefix: 'Figures ',
+    multi_sep: ',',
     range_sep: '–',
     openwrap: '',
     closewrap: '',
@@ -25,6 +26,7 @@ const CONFIG = {
     double_prefix: 'Figure ',
     double_sep: ' and ',
     multi_prefix: 'Figures ',
+    multi_sep: ',',
     range_sep: '–',
     openwrap: '(',
     closewrap: ')',
@@ -59,7 +61,7 @@ function rangeExtraction(list, config) {
         out.push(config.double_sep);
       } else if (i + 1 == j) {
         // two numbers
-        out.push(config.double_sep, list[j], config.double_sep);
+        out.push(config.multi_sep, list[j], config.multi_sep);
       } else {
         // range
         console.log('-------range------------');
@@ -182,14 +184,15 @@ var Text_Compare_Update = function (oldValue, newValue, Option) {
     console.log(oldValue, newValue);
     Option = Option ? Option : { delVal: !1 };
     let new_rid = Option.node.getAttribute('rid');
-    // console.log('new_rid---');
-    // console.log(new_rid);
-    // console.log('new_num');
+     console.log('new_rid---');
+     console.log(new_rid);
+     console.log('new_num');
     let new_num = new_rid
       .split(' ')
       .map((string) => parseInt(string.replace(/\D/g, '')));
     // console.log(new_num);
     console.log('rangeExtraction');
+    console.log(new_num);
     let new_full_digit = rangeExtraction(new_num);
     console.log(new_full_digit);
     let split = {
@@ -245,48 +248,57 @@ var Get_Set_Part_Label = function (old_label, Option) {
     if (typeof old_label !== 'string') {
       lab = old_label[old_label[1] ? 1 : 0];
     }
-    let Obj = { single: {}, range: {} };
-   //console.log('__lab__');
-   // console.log(lab);
+    let Obj = { single: {}, range: {},range_label_0:''};
+    //console.log('__lab__');
+    // console.log(lab);
     if (lab.indexOf('–') > 0 && lab.split('–')[1].replace(/\D/g, '')) {
       //console.log('lab.indexOf');
       //console.log(lab.split('–')[1].replace(/\D/g, ''));
       let range_split = lab.split('–');
       Obj.range_label_1 = GET_SET_PART(range_split[0]);
-      Obj.range_label_2 = GET_SET_PART(range_split[1]);
+      Obj.range_label_2 = GET_SET_PART(range_split[1]);      
       console.log('range_label_1 ==> ' + Obj.range_label_1);
       console.log('range_label_2 ==> ' + Obj.range_label_2);
       if (Option.set) {
-        console.log(`===>`+Option.newValue.join(' '));
-        if (Option.newValue[1].indexOf('–') > 0) {                    
+        console.log(`===>` + Option.newValue.join(' '));
+        let tempVal = '';
+        if (Option.newValue[1].indexOf('–') > 0) {
           // ? Figures 1-3
           console.log('newValue.indexOf');
-          let tempVal = Option.newValue[1]
+          tempVal = Option.newValue[1]
             .split('–')
-            .map((s, idx) => s + Obj[`range_label_${idx == 0 ?'1':'2'}`])
+            .map((s, idx) => s + Obj[`range_label_${idx == 0 ? '1' : '2'}`])
             .join('–');
           console.log(tempVal);
-          Obj.newValue = (IsJoin_old_Cite ? '' : old_label[0]).concat(' ' ,tempVal);
-        } else if (Option.newValue.indexOf(',') > 0) {
-          console.log('--indexOf(',')---');
+          // Obj.newValue = (IsJoin_old_Cite ? '' : old_label[0]).concat(
+          //   ' ',
+          //   tempVal
+          // );
+        } else if (Option.newValue[1].indexOf(',') > 0) {
+          console.log('--indexOf(",")---');
           // ? Figures 1,3,4
-          Obj.newValue =
-            (IsJoin_old_Cite ? '' : old_label[0]) +
-            Option.newValue
-              .split(',')
-              .map(
-                (s, idx, arr) =>
-                  s +
-                  Obj[
-                    idx == 0
-                      ? range_label_1
-                      : idx === arr.length - 1
-                      ? range_label_2
-                      : ''
-                  ]
-              )
-              .join(',');
+          console.log([Obj.range_label_0]);
+          tempVal = Option.newValue[1]
+            .split(',')
+            .map(
+              (s, idx, arr) =>
+                s +
+                Obj[`range_label_${idx == 0 ? '1' : (idx === arr.length - 1?'2':'0')}`]
+                // Obj[
+                //   idx == 0
+                //     ? range_label_1
+                //     : idx === arr.length - 1
+                //     ? range_label_2
+                //     : ''
+                // ]
+            )
+            .join(',');
+          console.log(tempVal);
         }
+        Obj.newValue = (IsJoin_old_Cite ? '' : old_label[0]).concat(
+          ' ',
+          tempVal
+        );
       }
     } else {
       console.log('Obj.single');
@@ -353,4 +365,42 @@ let Or_Order = [
     NewId: 'T2',
   },
 ];
-check(Or_Order);
+let Or_Order1_1 = [
+  {
+    Original_lab: 'Figure 1',
+    Original_Id: 'F1',
+    Seq_No: '1',
+    NewLabel: '',
+    NewId: '',
+  },
+  {
+    Original_lab: 'Figure 2',
+    Original_Id: 'F2',
+    Seq_No: '2',
+    NewLabel: '',
+    NewId: '',
+  },
+  {
+    Original_lab: 'Figure 3',
+    Original_Id: 'F3',
+    Seq_No: '3',
+    NewLabel: '',
+    NewId: '',
+  },
+  {
+    Original_lab: 'Figure 4',
+    Original_Id: 'F4',
+    Seq_No: '4',
+    NewLabel: 'Figure 5',
+    NewId: 'F5',
+  },
+  {
+    Original_lab: 'Figure 5',
+    Original_Id: 'F5',
+    Seq_No: '5',
+    NewLabel: 'Figure 6',
+    NewId: 'F6',
+  },
+];
+//check(Or_Order);
+check(Or_Order1_1);
